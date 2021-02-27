@@ -8,6 +8,7 @@ import os
 from app import app
 from flask import render_template, request, redirect, url_for, flash, session, abort
 from werkzeug.utils import secure_filename
+from .forms import UploadForm
 
 
 ###
@@ -23,7 +24,7 @@ def home():
 @app.route('/about/')
 def about():
     """Render the website's about page."""
-    return render_template('about.html', name="Mary Jane")
+    return render_template('about.html', name="Arnoldo Daley")
 
 
 @app.route('/upload', methods=['POST', 'GET'])
@@ -32,22 +33,26 @@ def upload():
         abort(401)
 
     # Instantiate your form class
-
+    uf = UploadForm()
     # Validate file upload on submit
     if request.method == 'POST':
+        if uf.validate_on_submit():
         # Get file data and save to your uploads folder
+            upload = uf.upload.data
+            fn = secure_filename(upload.filename)
+            upload.save(os.path.join(app.config['UPLOAD_FOLDER'], fn))
 
-        flash('File Saved', 'success')
-        return redirect(url_for('home'))
-
-    return render_template('upload.html')
+            flash('File Saved', 'success')
+            return redirect(url_for('home'))
+    flash_errors(uf)
+    return render_template('upload.html', form=uf)
 
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     error = None
     if request.method == 'POST':
-        if request.form['username'] != app.config['USERNAME'] or request.form['password'] != app.config['PASSWORD']:
+        if request.form['username'] != app.config['ADMIN_USERNAME'] or request.form['password'] != app.config['ADMIN_PASSWORD']:
             error = 'Invalid username or password'
         else:
             session['logged_in'] = True
