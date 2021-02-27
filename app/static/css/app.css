@@ -1,3 +1,15 @@
 body {
     padding-top: 5rem;
 }
+
+.photosLayout{
+    display: grid;
+    grid-column-gap: 18px;
+    grid-row-gap: 18px;
+    grid-template-columns: auto auto auto;
+    padding: 8px;
+}
+img{
+    width:375px;
+    height:375px;
+}
